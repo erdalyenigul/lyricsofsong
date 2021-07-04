@@ -10,7 +10,30 @@
       <button class="button is-medium is-dark" @click="getSongDetail()">Search</button>
     </div>
 
-    <div class="section detail" v-if="charts">
+    <div class="section detail" v-if="results && !charts">
+      <div class="cardWrap">
+        <div class="cardCol" v-for="(song, index) in results" :key="index">
+          <div class="card"> 
+            <div class="card-image">
+              <figure class="image is-4by3">
+                <img :src="song.track.images.coverart" :alt="song.track.subtitle">
+              </figure>
+            </div>
+            <div class="card-content">
+              <div class="media">
+                <div class="media-content">
+                  <p class="title is-5">{{ song.track.subtitle }}</p>
+                  <p class="subtitle is-6">{{ song.track.title }}</p>
+                  <a :href="song.track.url" target="_blank" class="button is-link">Get Details</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section detail" v-if="charts && !results">
       <h1 class="is-flex is-justify-content-center has-text-weight-bold is-size-5">{{ countryName }} Top 20</h1>
       <div class="cardWrap">
         <div class="cardCol" v-for="(song, index) in charts" :key="index">
@@ -44,28 +67,7 @@
       </div>
     </div>
 
-    <div class="section detail">
-      <div class="cardWrap">
-        <div class="cardCol" v-for="(song, index) in results" :key="index">
-          <div class="card"> 
-            <div class="card-image">
-              <figure class="image is-4by3">
-                <img :src="song.track.images.coverart" :alt="song.track.subtitle">
-              </figure>
-            </div>
-            <div class="card-content">
-              <div class="media">
-                <div class="media-content">
-                  <p class="title is-5">{{ song.track.subtitle }}</p>
-                  <p class="subtitle is-6">{{ song.track.title }}</p>
-                  <a :href="song.track.url" target="_blank" class="button is-link">Get Details</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    
     
   </div>
 </template>
@@ -86,6 +88,7 @@ export default {
       window.scrollTo(0, 0);
     },
     getCountryDetail(item) {
+      this.results = null;
       this.charts = null;
       this.countryName = item.name;
       this.$axios({
@@ -115,13 +118,14 @@ export default {
       })
       .then((response) => {
         this.countries = response.data.countries;
-
       })
       .catch((error) => {
         console.log(error);
       });
     },
     getSongDetail() {
+      this.charts = null;
+      this.results = null;
       this.$axios({
         method: 'GET',
         url: 'https://shazam.p.rapidapi.com/search',
